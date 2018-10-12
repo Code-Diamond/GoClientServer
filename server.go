@@ -12,6 +12,7 @@ const (
 )
 //Spawn a tcp server
 func main() {
+  users := make([]string, 0)
 
   fmt.Println("Started server @ " + HOST + ":" + PORT)
   listen, _ := net.Listen(TYPE, HOST + ":" + PORT)
@@ -26,11 +27,14 @@ func main() {
       //Read the Ip address
       userIP := connection.RemoteAddr().String()
       userIP = convertAddress(userIP)
-
+      if(checkIfContains(users, userIP)){
+      }else{
+        users=append(users, userIP)
+      }
       //Read the incoming connection into the buffer.
       requestLength, _ := connection.Read(buffer)
 
-      //Pint out the message to a string
+      //Print out the message to a string
       message := string(buffer[:requestLength])
       fmt.Print("<" + userIP + ">: " + message)
 
@@ -38,6 +42,10 @@ func main() {
       message = "<" + userIP + ">: " + message
       bounceByteArray := []byte(message)
       connection.Write(bounceByteArray)
+      //keep track of user list and print
+      for i:=0; i< len(users);i++{
+        fmt.Println(users[i])
+      }
 
       // Close the connection when you're done with it.
       connection.Close()
@@ -50,6 +58,15 @@ func convertAddress(raw string)(string){
   for i := range stringSlice {
     data[i]=stringSlice[i]
   }
-  userIP := data[0]+"."+":3333"
+  userIP := data[0]+":3333"
   return userIP
+}
+
+func checkIfContains(array []string, str string) bool {
+   for _, element := range array {
+      if element == str {
+         return true
+      }
+   }
+   return false
 }
